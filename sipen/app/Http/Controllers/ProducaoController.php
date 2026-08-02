@@ -493,8 +493,8 @@ public function visualizar($id, Request $request)
 
     /**
      * Pré-processa o HTML do relatório resolvendo caminhos de imagens.
-     * Retorna caminho relativo limpo compatível com K_PATH_IMAGES para evitar erros no parse_url do TCPDF
-     * e substitui tags de imagens inexistentes por elementos span inline.
+     * Substitui o src pelo caminho absoluto no disco para o TCPDF ler diretamente
+     * e remove tags de imagens inexistentes, substituindo-as por spans inline.
      */
     private function tratarImagensHtml($html)
     {
@@ -516,7 +516,7 @@ public function visualizar($id, Request $request)
             }
 
             if ($relativePath) {
-                // O caminho físico absoluto local para validação
+                // O caminho físico absoluto local para validação e leitura direta do TCPDF
                 $localPath = public_path($relativePath);
                 $localPath = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $localPath);
                 
@@ -525,10 +525,8 @@ public function visualizar($id, Request $request)
                     return '<span style="color: red; font-style: italic; font-size: 9px;">[Imagem não encontrada: ' . basename($srcClean) . ']</span>';
                 }
 
-                // Se existe, atualizamos o src com a URL relativa limpa.
-                // O TCPDF resolverá a partir de K_PATH_IMAGES (que é definido como public_path() . '/')
-                $relativePathClean = str_replace('\\', '/', $relativePath);
-                return preg_replace('/src=["\']([^"\']+)["\']/i', 'src="' . $relativePathClean . '"', $imgTag);
+                // Se o arquivo existe, fornecemos o caminho físico absoluto do servidor para leitura direta no disco
+                return preg_replace('/src=["\']([^"\']+)["\']/i', 'src="' . $localPath . '"', $imgTag);
             }
 
             return $imgTag;
