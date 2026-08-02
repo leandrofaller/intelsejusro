@@ -351,6 +351,7 @@ public function visualizar($id, Request $request)
 
     public function imprimir($id, Request $request)
     {
+        error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
         $producao = DB::table('producao as p')
             ->Where('p.id', $id)
             ->first();
@@ -413,6 +414,7 @@ public function visualizar($id, Request $request)
 
     public function exportarZip(Request $request)
     {
+        error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
         try {
             $regiao = Unidade::where('regiao_id', Auth::user()->regiao_id)->select('id')->get();
             
