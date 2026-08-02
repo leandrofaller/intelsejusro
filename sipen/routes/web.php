@@ -215,6 +215,7 @@ Route::group(['middleware'=>'auth'], function() {
 
         Route::get('resumo', ['as'=>'producao.resumo','uses'=>'ProducaoController@resumo']);
         Route::get('resumolista/{id?}', ['as'=>'producao.resumolista','uses'=>'ProducaoController@resumolista']);
+        Route::get('exportar/zip', ['as' => 'producao.exportarZip', 'uses' => 'ProducaoController@exportarZip']);
 
     });
 

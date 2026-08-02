@@ -409,9 +409,83 @@ public function visualizar($id, Request $request)
 
      //   Logger::Success('Certidão  Carcerária ','Preso : '.$apenado->nomeapenado.'  Data Emissão: ' .date('d-m-y'). ' Servidor: ' .Auth::user()->nome);
         return $this->relatorio-> gerar_pdf_retrato('Relatorio_'.$numeroRelatorio.'', $conteudo_html, '' );
-
-
     }
 
+    public function exportarZip(Request $request)
+    {
+        try {
+            $regiao = Unidade::where('regiao_id', Auth::user()->regiao_id)->select('id')->get();
+            
+            if (Auth::user()->regiao_id == 1) {
+                $producoes = DB::table('producao as p')
+                    ->orderby('p.numero', 'desc')
+                    ->get();
+            } else {
+                $producoes = DB::table('producao as p')
+                    ->WhereIn('p.unidade_id', $regiao)
+                    ->orderby('p.numero', 'desc')
+                    ->get();
+            }
 
+            if ($producoes->isEmpty()) {
+                Flash::error("Nenhum relatório encontrado para exportar.");
+                return redirect()->back();
+            }
+
+            $zip = new \ZipArchive();
+            $zipName = 'Relatorios_Producao_' . date('d-m-Y_His') . '.zip';
+            $tempZipPath = tempnam(sys_get_temp_dir(), 'zip');
+
+            if ($zip->open($tempZipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === TRUE) {
+                foreach ($producoes as $producao) {
+                    $numeroRelatorio = $producao->numero.'-'.$producao->ano;
+                    
+                    $conteudo_html =
+                        '<br><br><br><br><br>' .
+                        '<h1 style="text-align: center;"> NUCLEO DE ANÁLISE </h1>'.
+                        '<br><br><br><br><br>' .
+                        '<br><br><br><p align="left">Número: <strong>'.$numeroRelatorio.'</strong> </p>' .
+                        $producao->conteudo .
+                        '<br><b style="text-align: left;"> Chave: </b><b style="text-align: left;"> '.$producao->chave.' </b>' .
+                        '<br><br><p align="right" > Porto Velho '. \Jenssegers\Date\Date::now()->format('j F Y') .'</p>';
+
+                    $pdf = new \TCPDF();
+                    $pdf->SetAuthor('sejus');
+                    $pdf->SetTitle('Relatorio ' . $numeroRelatorio);
+                    $pdf->SetSubject('Relatorio ' . $numeroRelatorio);
+                    
+                    if (!defined('K_PATH_IMAGES')) {
+                        define('K_PATH_IMAGES', public_path());
+                    }
+                    
+                    $pdf->SetHeaderData('/sejus-ro.jpg', 10, 'GOVERNO DO ESTADO DE RONDÔNIA', 'SECRETARIA DE ESTADO DE JUSTIÇA');
+                    $pdf->SetMargins(5, 25, 5);
+                    $pdf->SetHeaderMargin(5);
+                    $pdf->SetRightMargin(5);
+                    $pdf->SetFooterMargin(10);
+                    $pdf->SetFont('helvetica', '', 11);
+                    $pdf->setHeaderFont(Array('helvetica', '', 14));
+                    
+                    $pdf->AddPage('P', 'A4');
+                    $pdf->writeHTML($conteudo_html);
+                    $pdf->lastPage();
+                    
+                    $pdfString = $pdf->output('', 'S');
+                    $nomePdf = 'Relatorio_' . str_replace('/', '_', $numeroRelatorio) . '.pdf';
+                    $zip->addFromString($nomePdf, $pdfString);
+                }
+                $zip->close();
+            } else {
+                throw new \Exception("Não foi possível criar o arquivo ZIP temporário.");
+            }
+
+            Logger::Success('Exportar ZIP de Relatórios', 'Realizado o download de todos os relatórios em formato ZIP (' . count($producoes) . ' arquivos)');
+
+            return response()->download($tempZipPath, $zipName)->deleteFileAfterSend(true);
+
+        } catch (\Exception $e) {
+            Flash::error('Erro ao exportar relatórios para ZIP: ' . $e->getMessage());
+            return redirect()->back();
+        }
+    }
 }
