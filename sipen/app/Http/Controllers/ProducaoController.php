@@ -392,7 +392,7 @@ public function visualizar($id, Request $request)
 
 
         $conteudo_html .=
-            $producao->conteudo        ;
+            $this->tratarImagensHtml($producao->conteudo)        ;
 
 
         $conteudo_html .=
@@ -447,7 +447,7 @@ public function visualizar($id, Request $request)
                         '<h1 style="text-align: center;"> NUCLEO DE ANÁLISE </h1>'.
                         '<br><br><br><br><br>' .
                         '<br><br><br><p align="left">Número: <strong>'.$numeroRelatorio.'</strong> </p>' .
-                        $producao->conteudo .
+                        $this->tratarImagensHtml($producao->conteudo) .
                         '<br><b style="text-align: left;"> Chave: </b><b style="text-align: left;"> '.$producao->chave.' </b>' .
                         '<br><br><p align="right" > Porto Velho '. \Jenssegers\Date\Date::now()->format('j F Y') .'</p>';
 
@@ -489,5 +489,45 @@ public function visualizar($id, Request $request)
             Flash::error('Erro ao exportar relatórios para ZIP: ' . $e->getMessage());
             return redirect()->back();
         }
+    }
+
+    /**
+     * Pré-processa o HTML do relatório resolvendo caminhos de imagens.
+     * Substitui o src pelo caminho absoluto no disco e remove tags de imagens inexistentes.
+     */
+    private function tratarImagensHtml($html)
+    {
+        $html = html_entity_decode($html, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+        $html = preg_replace_callback('/<img\s+[^>]*src=["\']([^"\']+)["\'][^>]*>/i', function($matches) {
+            $imgTag = $matches[0];
+            $src = $matches[1];
+            $srcClean = trim($src);
+
+            $localPath = null;
+            if (preg_match('/^\/?sipen\/public\/(.+)$/', $srcClean, $pathMatches)) {
+                $localPath = public_path($pathMatches[1]);
+            } elseif (preg_match('/^\/?public\/(.+)$/', $srcClean, $pathMatches)) {
+                $localPath = public_path($pathMatches[1]);
+            } elseif (preg_match('/^\/?photos\/(.+)$/', $srcClean, $pathMatches)) {
+                $localPath = public_path('photos/' . $pathMatches[1]);
+            } else {
+                $localPath = public_path($srcClean);
+            }
+
+            if ($localPath) {
+                $localPath = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $localPath);
+                
+                if (!file_exists($localPath)) {
+                    return '<p style="color: red; font-style: italic; font-size: 9px;">[Imagem não encontrada: ' . basename($srcClean) . ']</p>';
+                }
+
+                return preg_replace('/src=["\']([^"\']+)["\']/i', 'src="' . $localPath . '"', $imgTag);
+            }
+
+            return $imgTag;
+        }, $html);
+
+        return $html;
     }
 }
