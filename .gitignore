@@ -29,3 +29,7 @@ sipen/storage/*
 sipen/vendor/
 sipen/node_modules/
 sipen/.env
+
+# Ignorar script temporário de configuração da Hostinger
+setup-hostinger.php
+
