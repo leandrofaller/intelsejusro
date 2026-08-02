@@ -1,0 +1,81 @@
+<?php
+
+namespace App\Model;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Visita extends Model
+{
+    protected $table = 'visitas';
+    protected $fillable = [
+        'nomevisita', 'cpfvisita','rgvisita','datanascimentovisita', 'fotovisita',
+        'enderecovisita', 'ufvisita', 'cidadevisita', 'telefonecontato', 'dataemicaocarteirinha',
+        'orgaoexpedicaovisita', 'naturalidadevisita', 'sexovisitante'
+    ];
+
+
+
+    public function apenados()
+    {
+        return $this->belongsToMany('App\Model\Apenado','visitas_apenados', 'visita_id', 'apenado_id')
+                    ->withPivot(['datacadastro', 'user_id', 'datacancelamento', 'motivo']);
+
+        //    return $this->belongsToMany('App\Model\Apenado');
+    }
+
+    public static $grauparentesco = [
+
+        '' => '',
+        'Cônjuge' => 'Cônjuge',
+        'Pai' => 'Pai',
+        'Mãe' => 'Mãe',
+        'Filho' => 'Filho',
+        'Irmão' => 'Irmão',
+        'Tio' => 'Tio',
+        'Avós' => 'Avós',
+        'Amigo' => 'Amigo',
+    ];
+
+    public static $sexovisitante = [
+
+        '' => '',
+        'Feminino' => 'Feminino',
+        'Masculino' => 'Masculino',
+    ];
+
+    public static $ufs = [
+        '' => '',
+        'AC' => 'Acre',
+        'AL' => 'Alagoas',
+        'AP' => 'Amapá',
+        'AM' => 'Amazonas',
+        'BA' => 'Bahia',
+        'CE' => 'Ceará',
+        'DF' => 'Distrito Federal',
+        'ES' => 'Espirito Santo',
+        'GO' => 'Goiás',
+        'MA' => 'Maranhão',
+        'MS' => 'Mato Grosso do Sul',
+        'MT' => 'Mato Grosso',
+        'MG' => 'Minas Gerais',
+        'PA' => 'Pará',
+        'PB' => 'Paraíba',
+        'PR' => 'Paraná',
+        'PE' => 'Pernambuco',
+        'PI' => 'Piauí',
+        'RJ' => 'Rio de Janeiro',
+        'RN' => 'Rio Grande do Norte',
+        'RS' => 'Rio Grande do Sul',
+        'RO' => 'Rondônia',
+        'RR' => 'Roraima',
+        'SC' => 'Santa Catarina',
+        'SP' => 'São Paulo',
+        'SE' => 'Sergipe',
+        'TO' => 'Tocantins',
+];
+
+
+
+
+
+}

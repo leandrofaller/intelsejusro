@@ -1,0 +1,167 @@
+* {
+	font: sans-serif;
+}
+body {	
+	font-family: sans-serif;
+	pointer-events:none; 
+}
+
+.page {
+	width:210mm;
+	margin-left:auto;
+	margin-right:auto;
+}
+
+#alinha	{
+	position: fixed;
+	background-color: rgba(0, 0, 255, 0.5);
+	height: 297mm;
+	right: 20px;
+	top: 0;
+	width: 8px;
+	z-index: 10000;
+}
+
+.header {
+	border: 1px solid #000;
+	border-bottom: 0;
+}
+
+.header .logo {
+	float: left;
+	font-size: 10px;
+	line-height: 120px;
+	border-right: 1px solid #000;
+	width: 30mm;
+	height: 31mm;
+
+
+}
+.header .titulo {
+	float: left;
+	font-size: 10mm;
+	width: 100mm;
+	height: 20mm;
+	padding-top: 45px;
+	text-align: center;
+	padding-left: 90px;
+}
+.header .titulohistorico {
+	float: left;
+	font-size: 10mm;
+	width: 150mm;
+	height: 20mm;
+	padding-top: 45px;
+	text-align: center;
+}
+
+.header .foto {
+	font-size: 10px;
+	line-height: 120px;
+	border-left: 1px solid #000;
+	float: right;
+	width: 30mm;
+	height: 31mm;
+}
+
+
+.content {
+	width: 205.5mm;
+	height: auto;
+	background-color: #FFF;
+	border: 1px solid #000;
+	position: relative;
+	top: 0;
+	padding: 2mm;
+}
+
+.content.content-no-header {
+	height: 285mm;
+}
+
+.content .title {
+	clear: both;
+	background-color: #CCC;
+	padding: .3mm;
+	font-size: 3.5mm;
+	text-align: center;
+}
+
+.input {
+	display: block;
+	float: left;
+	margin-left: 5mm;
+}
+
+.input label {
+	font-size: 10px;
+	display: inline-block;
+}
+
+.input input, .input textarea {
+	border: 1px solid #333;
+	width: 100%;
+	padding: 1mm;
+	font-size: 11px;
+}
+
+.no-margin {
+	margin: 0 !important;
+}
+
+.line {
+	margin-top: 0mm;
+}
+
+
+
+.line .logo {
+	float: left;
+	font-size: 10px;
+	line-height: 120px;
+	border-right: 1px solid #000;
+	width: 30mm;
+	height: 31mm;
+}
+
+
+.line .logofoto {
+	float: left;
+	font-size: 10px;
+	line-height: 120px;
+	padding-left: 5px;
+	padding-right: 5px;
+	width: 50mm;
+	height: 55mm;
+}
+
+
+.obs {
+	font-size: 11px;
+	text-align: justify;
+}
+
+.clearfix {
+	clear:both;
+}
+
+.grey {
+	background-color: #CCC
+}
+
+.text-right {
+	text-align: right;
+}
+.text-center {
+	text-align: center;
+}
+
+.page-break	{
+	display: block; page-break-before: always;
+}
+
+.assinatura {
+	float: left;
+}
+.bold { font-weight: bold; }
+

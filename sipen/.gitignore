@@ -1,0 +1,12 @@
+/node_modules
+/public/storage
+/public/documentos
+/public/fotosPresos
+/public/fotosVisitas
+/storage/*.key
+/vendor
+/.idea
+/config/database.php
+Homestead.json
+Homestead.yaml
+.env

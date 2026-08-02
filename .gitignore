@@ -1,0 +1,31 @@
+# Ignorar arquivos de dados do Nextcloud / ownCloud
+cloud/data/*
+!cloud/data/.htaccess
+!cloud/data/index.html
+
+# Ignorar lixo e diretórios de dados temporários
+.htyhl2tflbpuqv.data/
+.user.ini.bak
+*.log
+*.tmp
+*.bak
+
+# Ignorar pastas de uploads e dados de produção do Laravel sipen
+sipen/public/fotosPresos/*
+sipen/public/documentos_Faccao/*
+sipen/public/imgGalerias/*
+sipen/public/documentos_Apenado/*
+sipen/public/photos/*
+sipen/public/documentoServidores/*
+sipen/public/files/*
+sipen/public/fotosAdvogados/*
+sipen/public/avatars/*
+sipen/public/img/*
+sipen/public/images/*
+sipen/storage/*
+!sipen/storage/.gitignore
+
+# Garantir que dependências locais do Laravel permaneçam ignoradas
+sipen/vendor/
+sipen/node_modules/
+sipen/.env
