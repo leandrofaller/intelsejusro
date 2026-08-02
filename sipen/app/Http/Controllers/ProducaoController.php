@@ -493,8 +493,9 @@ public function visualizar($id, Request $request)
 
     /**
      * Pré-processa o HTML do relatório resolvendo caminhos de imagens.
-     * Substitui o src pelo caminho absoluto no disco para o TCPDF ler diretamente
-     * e remove tags de imagens inexistentes, substituindo-as por spans inline.
+     * Converte as imagens encontradas localmente para Base64 (Data URI).
+     * Isso evita problemas com parse_url e caminhos de arquivos acentuados no TCPDF.
+     * Imagens não encontradas são substituídas por spans inline de aviso.
      */
     private function tratarImagensHtml($html)
     {
@@ -516,17 +517,29 @@ public function visualizar($id, Request $request)
             }
 
             if ($relativePath) {
-                // O caminho físico absoluto local para validação e leitura direta do TCPDF
+                // O caminho físico absoluto local
                 $localPath = public_path($relativePath);
                 $localPath = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $localPath);
                 
-                // Se o arquivo físico não existe no servidor
-                if (!file_exists($localPath)) {
-                    return '<span style="color: red; font-style: italic; font-size: 9px;">[Imagem não encontrada: ' . basename($srcClean) . ']</span>';
+                // Se o arquivo físico existe no servidor, vamos convertê-lo para Base64
+                if (file_exists($localPath)) {
+                    try {
+                        $imgData = file_get_contents($localPath);
+                        if ($imgData !== false) {
+                            $extension = strtolower(pathinfo($localPath, PATHINFO_EXTENSION));
+                            $mime = 'image/' . ($extension === 'jpg' ? 'jpeg' : $extension);
+                            $base64 = 'data:' . $mime . ';base64,' . base64_encode($imgData);
+                            
+                            // Substitui o atributo src pelo Data URI em Base64
+                            return preg_replace('/src=["\']([^"\']+)["\']/i', 'src="' . $base64 . '"', $imgTag);
+                        }
+                    } catch (\Exception $e) {
+                        // Caso ocorra falha na leitura, cai no fallback abaixo
+                    }
                 }
-
-                // Se o arquivo existe, fornecemos o caminho físico absoluto do servidor para leitura direta no disco
-                return preg_replace('/src=["\']([^"\']+)["\']/i', 'src="' . $localPath . '"', $imgTag);
+                
+                // Se o arquivo físico não existe no servidor ou falhou a leitura
+                return '<span style="color: red; font-style: italic; font-size: 9px;">[Imagem não encontrada: ' . basename($srcClean) . ']</span>';
             }
 
             return $imgTag;
