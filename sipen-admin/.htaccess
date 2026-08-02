@@ -5,16 +5,17 @@
 
     RewriteEngine On
 
-    # Redirect Trailing Slashes If Not A Folder...
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)/$ /$1 [L,R=301]
+    # 1. Evita loop se a requisição já estiver apontando para a pasta public/
+    RewriteCond %{REQUEST_URI} ^/sipen-admin/public/ [NC]
+    RewriteRule ^ - [L]
 
-    # Handle Front Controller...
-    RewriteCond %{REQUEST_FILENAME} !-d
+    # 2. Redireciona requisições de assets (arquivos/diretórios) existentes em public/ para a pasta public/
+    RewriteCond %{DOCUMENT_ROOT}/sipen-admin/public/$1 -f [OR]
+    RewriteCond %{DOCUMENT_ROOT}/sipen-admin/public/$1 -d
+    RewriteRule ^(.*)$ public/$1 [L]
+
+    # 3. Redireciona as rotas normais do Laravel para public/index.php
     RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^ index.php [L]
-
-    # Handle Authorization Header
-    RewriteCond %{HTTP:Authorization} .
-    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ public/index.php [L]
 </IfModule>
