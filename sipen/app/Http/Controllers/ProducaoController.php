@@ -426,7 +426,7 @@ public function visualizar($id, Request $request)
 
             return response()->download($tempZipPath, $zipName)->deleteFileAfterSend(true);
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Flash::error('Erro ao exportar relatórios para ZIP: ' . $e->getMessage());
             return redirect()->back();
         }
@@ -446,13 +446,17 @@ public function visualizar($id, Request $request)
         $qrcode_base64 = '';
         if ($producao->chave) {
             try {
-                $qrRaw = \QrCode::format('png')->size(100)->generate("http://intelsejusro.com/sipen/code/" . $chavecode);
-                $qrcode_base64 = 'data:image/png;base64,' . base64_encode($qrRaw);
-            } catch (\Exception $e) {
+                if (class_exists('QrCode')) {
+                    $qrRaw = \QrCode::format('png')->size(100)->generate("http://intelsejusro.com/sipen/code/" . $chavecode);
+                    $qrcode_base64 = 'data:image/png;base64,' . base64_encode($qrRaw);
+                }
+            } catch (\Throwable $e) {
                 try {
-                    $qrRaw = \QrCode::size(100)->generate("http://intelsejusro.com/sipen/code/" . $chavecode);
-                    $qrcode_base64 = 'data:image/svg+xml;base64,' . base64_encode($qrRaw);
-                } catch (\Exception $e2) {
+                    if (class_exists('QrCode')) {
+                        $qrRaw = \QrCode::size(100)->generate("http://intelsejusro.com/sipen/code/" . $chavecode);
+                        $qrcode_base64 = 'data:image/svg+xml;base64,' . base64_encode($qrRaw);
+                    }
+                } catch (\Throwable $e2) {
                     $qrcode_base64 = '';
                 }
             }
