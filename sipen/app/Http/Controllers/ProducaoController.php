@@ -374,6 +374,8 @@ public function visualizar($id, Request $request)
  
     public function exportarZip(Request $request)
     {
+        ini_set('memory_limit', '512M');
+        ini_set('max_execution_time', '300');
         error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
         try {
             $regiao = Unidade::where('regiao_id', Auth::user()->regiao_id)->select('id')->get();
@@ -439,6 +441,22 @@ public function visualizar($id, Request $request)
         $chavecode = base64_encode($producao->chave);
         $dataFormatted = $producao->datarelatorio ? dataFormat($producao->datarelatorio) : '**********';
         $seguranca = $producao->seguranca ? $producao->seguranca : 'RESERVADO';
+
+        // Gera o QR Code em Base64 usando a biblioteca QrCode do Laravel de forma segura (com fallback)
+        $qrcode_base64 = '';
+        if ($producao->chave) {
+            try {
+                $qrRaw = \QrCode::format('png')->size(100)->generate("http://intelsejusro.com/sipen/code/" . $chavecode);
+                $qrcode_base64 = 'data:image/png;base64,' . base64_encode($qrRaw);
+            } catch (\Exception $e) {
+                try {
+                    $qrRaw = \QrCode::size(100)->generate("http://intelsejusro.com/sipen/code/" . $chavecode);
+                    $qrcode_base64 = 'data:image/svg+xml;base64,' . base64_encode($qrRaw);
+                } catch (\Exception $e2) {
+                    $qrcode_base64 = '';
+                }
+            }
+        }
 
         $html = '
         <div style="background-color: #000000; color: #ffffff; text-align: center; font-weight: bold; font-size: 10px; line-height: 16px;">
@@ -529,7 +547,7 @@ public function visualizar($id, Request $request)
                     </div>
                 </td>
                 <td width="15%" align="center" valign="middle">
-                    <tcpdf method="write2DBarcode" params="\'http://intelsejusro.com/sipen/code/' . $chavecode . '\', \'QRCODE,H\', \'\', \'\', 25, 25, \'\', \'N\', true" />
+                    ' . ($qrcode_base64 ? '<img src="' . $qrcode_base64 . '" width="60" height="60">' : '') . '
                 </td>
             </tr>
         </table>
