@@ -31,7 +31,39 @@
             </div>
             <div class="col-md-6">
                     <a href="{!! route('producao.novo') !!}" class="btn btn-info" ><i class="fa fa-user-secret"></i> NOVO RELATÓRIO</a>
-                    <a href="{!! route('producao.exportarZip', ['parametro' => $parametro]) !!}" class="btn btn-success" ><i class="fa fa-download"></i> DOWNLOAD PDFs (ZIP)</a>
+                    <div class="btn-group">
+                        <button data-toggle="dropdown" class="btn btn-success dropdown-toggle">
+                            <i class="ace-icon fa fa-download"></i> DOWNLOAD PDFs (ZIP)
+                            <i class="ace-icon fa fa-angle-down icon-on-right"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-success">
+                            @php
+                                $total = count($producoes);
+                                $lote = 150;
+                                $partes = ceil($total / $lote);
+                            @endphp
+                            
+                            @if($total <= $lote)
+                                <li>
+                                    <a href="{!! route('producao.exportarZip', ['offset' => 0, 'limit' => $lote, 'parametro' => $parametro]) !!}">
+                                        Baixar Todos ({!! $total !!} relatórios)
+                                    </a>
+                                </li>
+                            @else
+                                @for($i = 0; $i < $partes; $i++)
+                                    @php
+                                        $inicio = ($i * $lote) + 1;
+                                        $fim = min((($i + 1) * $lote), $total);
+                                    @endphp
+                                    <li>
+                                        <a href="{!! route('producao.exportarZip', ['offset' => ($i * $lote), 'limit' => $lote, 'parametro' => $parametro, 'parte' => ($i + 1)]) !!}">
+                                            Parte {!! $i + 1 !!} (Relatórios {!! $inicio !!} a {!! $fim !!})
+                                        </a>
+                                    </li>
+                                @endfor
+                            @endif
+                        </ul>
+                    </div>
             </div>
 
         </div>

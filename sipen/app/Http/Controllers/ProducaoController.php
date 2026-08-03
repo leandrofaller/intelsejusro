@@ -380,6 +380,9 @@ public function visualizar($id, Request $request)
         try {
             $regiao = Unidade::where('regiao_id', Auth::user()->regiao_id)->select('id')->get();
             $parametro = $request->input('parametro');
+            $offset = intval($request->input('offset', 0));
+            $limit = intval($request->input('limit', 150));
+            $parte = intval($request->input('parte', 1));
             
             if (Auth::user()->regiao_id == 1) {
                 $query = DB::table('producao as p')
@@ -395,7 +398,8 @@ public function visualizar($id, Request $request)
                 
                 $producoes = $query->orderby('p.numero', 'desc')
                     ->select('p.id as idRel', 'p.*', 'pt.descricao', 'ps.nomestatus')
-                    ->limit(150)
+                    ->offset($offset)
+                    ->limit($limit)
                     ->get();
             } else {
                 $query = DB::table('producao as p')
@@ -412,17 +416,18 @@ public function visualizar($id, Request $request)
                 
                 $producoes = $query->orderby('p.numero', 'desc')
                     ->select('p.id as idRel', 'p.*', 'pt.descricao', 'ps.nomestatus')
-                    ->limit(150)
+                    ->offset($offset)
+                    ->limit($limit)
                     ->get();
             }
 
             if ($producoes->isEmpty()) {
-                Flash::error("Nenhum relatório encontrado para exportar.");
+                Flash::error("Nenhum relatório encontrado para exportar nesta parte.");
                 return redirect()->back();
             }
 
             $zip = new \ZipArchive();
-            $zipName = 'Relatorios_Producao_' . date('d-m-Y_His') . '.zip';
+            $zipName = 'Relatorios_Producao_Parte_' . $parte . '_' . date('d-m-Y_His') . '.zip';
             $tempZipPath = tempnam(sys_get_temp_dir(), 'zip');
 
             if ($zip->open($tempZipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === TRUE) {
