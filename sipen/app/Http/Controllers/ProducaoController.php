@@ -451,29 +451,8 @@ public function visualizar($id, Request $request)
                         '<br><b style="text-align: left;"> Chave: </b><b style="text-align: left;"> '.$producao->chave.' </b>' .
                         '<br><br><p align="right" > Porto Velho '. \Jenssegers\Date\Date::now()->format('j F Y') .'</p>';
 
-                    if (!defined('K_PATH_IMAGES')) {
-                        define('K_PATH_IMAGES', public_path() . '/');
-                    }
-
-                    $pdf = new \TCPDF();
-                    $pdf->SetAuthor('sejus');
-                    $pdf->SetTitle('Relatorio ' . $numeroRelatorio);
-                    $pdf->SetSubject('Relatorio ' . $numeroRelatorio);
-                    
-                    $pdf->SetHeaderData('sejus-ro.jpg', 10, 'GOVERNO DO ESTADO DE RONDÔNIA', 'SECRETARIA DE ESTADO DE JUSTIÇA');
-                    $pdf->SetMargins(5, 25, 5);
-                    $pdf->SetHeaderMargin(5);
-                    $pdf->SetRightMargin(5);
-                    $pdf->SetFooterMargin(10);
-                    $pdf->SetFont('helvetica', '', 11);
-                    $pdf->setHeaderFont(Array('helvetica', '', 14));
-                    
-                    $pdf->AddPage('P', 'A4');
-                    $pdf->writeHTML($conteudo_html);
-                    $pdf->lastPage();
-                    
-                    $pdfString = $pdf->output('', 'S');
                     $nomePdf = 'Relatorio_' . str_replace('/', '_', $numeroRelatorio) . '.pdf';
+                    $pdfString = $this->relatorio->gerar_pdf_string('Relatorio_'.$numeroRelatorio, $conteudo_html, 'R');
                     $zip->addFromString($nomePdf, $pdfString);
                 }
                 $zip->close();
