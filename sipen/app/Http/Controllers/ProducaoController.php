@@ -364,12 +364,12 @@ public function visualizar($id, Request $request)
             return redirect()->back();
         }
  
-        $html_completo = $this->montarHtmlRelatorio($producao);
-        $html_tratado = $this->tratarImagensHtml($html_completo);
+        $conteudo_tratado = $this->tratarImagensHtml($producao->conteudo);
+        $html_completo = $this->montarHtmlRelatorio($producao, $conteudo_tratado);
  
         $numeroRelatorio = $producao->numero.'-'.$producao->ano ;
         
-        return $this->relatorio->gerar_pdf_relatorio_stream('Relatorio_'.$numeroRelatorio, $html_tratado, 'R');
+        return $this->relatorio->gerar_pdf_relatorio_stream('Relatorio_'.$numeroRelatorio, $html_completo, 'R');
     }
  
     public function exportarZip(Request $request)
@@ -386,6 +386,7 @@ public function visualizar($id, Request $request)
                     ->join('producao_status as ps', 'ps.id','=','p.status_id')
                     ->orderby('p.numero', 'desc')
                     ->select('p.id as idRel', 'p.*', 'pt.descricao', 'ps.nomestatus')
+                    ->limit(100)
                     ->get();
             } else {
                 $producoes = DB::table('producao as p')
@@ -394,6 +395,7 @@ public function visualizar($id, Request $request)
                     ->WhereIn('p.unidade_id', $regiao)
                     ->orderby('p.numero', 'desc')
                     ->select('p.id as idRel', 'p.*', 'pt.descricao', 'ps.nomestatus')
+                    ->limit(100)
                     ->get();
             }
 
@@ -410,11 +412,11 @@ public function visualizar($id, Request $request)
                 foreach ($producoes as $producao) {
                     $numeroRelatorio = $producao->numero.'-'.$producao->ano;
                     
-                    $html_completo = $this->montarHtmlRelatorio($producao);
-                    $html_tratado = $this->tratarImagensHtml($html_completo);
+                    $conteudo_tratado = $this->tratarImagensHtml($producao->conteudo);
+                    $html_completo = $this->montarHtmlRelatorio($producao, $conteudo_tratado);
                     
                     $nomePdf = 'Relatorio_' . str_replace('/', '_', $numeroRelatorio) . '.pdf';
-                    $pdfString = $this->relatorio->gerar_pdf_relatorio_string('Relatorio_'.$numeroRelatorio, $html_tratado, 'R');
+                    $pdfString = $this->relatorio->gerar_pdf_relatorio_string('Relatorio_'.$numeroRelatorio, $html_completo, 'R');
                     $zip->addFromString($nomePdf, $pdfString);
                 }
                 $zip->close();
@@ -435,8 +437,46 @@ public function visualizar($id, Request $request)
     /**
      * Monta o HTML do relatório no padrão visual oficial (RELINT) para o TCPDF.
      */
-    private function montarHtmlRelatorio($producao)
+    private function montarHtmlRelatorio($producao, $conteudo)
     {
+        // Variáveis estáticas para cachear o Base64 das logos e evitar leituras de disco repetidas no loop do ZIP
+        static $logoEstadoBase64 = null;
+        static $logoSejusBase64 = null;
+        static $logoGeiiBase64 = null;
+
+        if ($logoEstadoBase64 === null) {
+            try {
+                $pathEstado = public_path('logo_estado.png');
+                if (file_exists($pathEstado)) {
+                    $logoEstadoBase64 = 'data:image/png;base64,' . base64_encode(file_get_contents($pathEstado));
+                }
+            } catch (\Exception $e) {
+                $logoEstadoBase64 = '';
+            }
+        }
+
+        if ($logoSejusBase64 === null) {
+            try {
+                $pathSejus = public_path('sejus-ro.png');
+                if (file_exists($pathSejus)) {
+                    $logoSejusBase64 = 'data:image/png;base64,' . base64_encode(file_get_contents($pathSejus));
+                }
+            } catch (\Exception $e) {
+                $logoSejusBase64 = '';
+            }
+        }
+
+        if ($logoGeiiBase64 === null) {
+            try {
+                $pathGeii = public_path('logogeii.jpeg');
+                if (file_exists($pathGeii)) {
+                    $logoGeiiBase64 = 'data:image/jpeg;base64,' . base64_encode(file_get_contents($pathGeii));
+                }
+            } catch (\Exception $e) {
+                $logoGeiiBase64 = '';
+            }
+        }
+
         $numeroRelatorio = $producao->numero.'-'.$producao->ano;
         $chavecode = base64_encode($producao->chave);
         $dataFormatted = $producao->datarelatorio ? dataFormat($producao->datarelatorio) : '**********';
@@ -471,7 +511,7 @@ public function visualizar($id, Request $request)
         <table width="100%" border="0" cellpadding="0" cellspacing="0">
             <tr>
                 <td width="20%" align="left" valign="middle">
-                    <img src="public/logo_estado.png" width="55" height="35">
+                    ' . ($logoEstadoBase64 ? '<img src="' . $logoEstadoBase64 . '" width="55" height="35">' : '') . '
                 </td>
                 <td width="60%" align="center" valign="middle" style="font-size: 9px; line-height: 12px;">
                     <strong>GOVERNO DO ESTADO DE RONDÔNIA</strong><br>
@@ -480,7 +520,7 @@ public function visualizar($id, Request $request)
                     <span style="font-size: 8px;">"CHAVE DE AUTENTICAÇÃO: ' . e($producao->chave) . ' "</span>
                 </td>
                 <td width="20%" align="right" valign="middle">
-                    <img src="public/sejus-ro.png" width="30" height="35">
+                    ' . ($logoSejusBase64 ? '<img src="' . $logoSejusBase64 . '" width="30" height="35">' : '') . '
                 </td>
             </tr>
         </table>
@@ -534,14 +574,14 @@ public function visualizar($id, Request $request)
         <br>
 
         <div style="font-size: 10px; text-align: justify; line-height: 14px;">
-            ' . $producao->conteudo . '
+            ' . $conteudo . '
         </div>
         <br><br>
 
         <table width="100%" cellpadding="6" cellspacing="0" style="border: 1px solid #000000;">
             <tr>
                 <td width="15%" align="center" valign="middle" style="border-right: 1px solid #000000;">
-                    <img src="public/logogeii.jpeg" width="45">
+                    ' . ($logoGeiiBase64 ? '<img src="' . $logoGeiiBase64 . '" width="45">' : '') . '
                 </td>
                 <td width="70%" align="center" valign="middle" style="border-right: 1px solid #000000;">
                     <span style="font-weight: bold; font-size: 10px;">CHAVE DE AUTENTICAÇÃO</span><br>
