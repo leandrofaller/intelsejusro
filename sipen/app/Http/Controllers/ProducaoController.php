@@ -501,6 +501,9 @@ public function visualizar($id, Request $request)
     {
         $html = html_entity_decode($html, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 
+        // Remove tags <a> mantendo o texto interno para evitar o bug de offset de URL do TCPDF no PHP 7.4/8.x
+        $html = preg_replace('/<a[^>]*>(.*?)<\/a>/is', '$1', $html);
+
         $html = preg_replace_callback('/<img\s+[^>]*src=["\']([^"\']+)["\'][^>]*>/i', function($matches) {
             $imgTag = $matches[0];
             $src = $matches[1];
