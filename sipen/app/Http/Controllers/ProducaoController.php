@@ -353,22 +353,25 @@ public function visualizar($id, Request $request)
     {
         error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
         $producao = DB::table('producao as p')
+            ->join('producao_tipo as pt', 'pt.id','=','p.tipo_id')
+            ->join('producao_status as ps', 'ps.id','=','p.status_id')
             ->Where('p.id', $id)
+            ->select('p.id as idRel', 'p.*', 'pt.descricao', 'ps.nomestatus')
             ->first();
-
+ 
         if (!$producao) {
             Flash::error("Relatório não encontrado.");
             return redirect()->back();
         }
-
+ 
         $html_completo = $this->montarHtmlRelatorio($producao);
         $html_tratado = $this->tratarImagensHtml($html_completo);
-
+ 
         $numeroRelatorio = $producao->numero.'-'.$producao->ano ;
         
         return $this->relatorio->gerar_pdf_relatorio_stream('Relatorio_'.$numeroRelatorio, $html_tratado, 'R');
     }
-
+ 
     public function exportarZip(Request $request)
     {
         error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
@@ -377,12 +380,18 @@ public function visualizar($id, Request $request)
             
             if (Auth::user()->regiao_id == 1) {
                 $producoes = DB::table('producao as p')
+                    ->join('producao_tipo as pt', 'pt.id','=','p.tipo_id')
+                    ->join('producao_status as ps', 'ps.id','=','p.status_id')
                     ->orderby('p.numero', 'desc')
+                    ->select('p.id as idRel', 'p.*', 'pt.descricao', 'ps.nomestatus')
                     ->get();
             } else {
                 $producoes = DB::table('producao as p')
+                    ->join('producao_tipo as pt', 'pt.id','=','p.tipo_id')
+                    ->join('producao_status as ps', 'ps.id','=','p.status_id')
                     ->WhereIn('p.unidade_id', $regiao)
                     ->orderby('p.numero', 'desc')
+                    ->select('p.id as idRel', 'p.*', 'pt.descricao', 'ps.nomestatus')
                     ->get();
             }
 
