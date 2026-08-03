@@ -386,7 +386,6 @@ public function visualizar($id, Request $request)
                     ->join('producao_status as ps', 'ps.id','=','p.status_id')
                     ->orderby('p.numero', 'desc')
                     ->select('p.id as idRel', 'p.*', 'pt.descricao', 'ps.nomestatus')
-                    ->limit(100)
                     ->get();
             } else {
                 $producoes = DB::table('producao as p')
@@ -395,7 +394,6 @@ public function visualizar($id, Request $request)
                     ->WhereIn('p.unidade_id', $regiao)
                     ->orderby('p.numero', 'desc')
                     ->select('p.id as idRel', 'p.*', 'pt.descricao', 'ps.nomestatus')
-                    ->limit(100)
                     ->get();
             }
 
