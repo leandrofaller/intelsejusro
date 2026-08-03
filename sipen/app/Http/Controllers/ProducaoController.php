@@ -379,21 +379,40 @@ public function visualizar($id, Request $request)
         error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
         try {
             $regiao = Unidade::where('regiao_id', Auth::user()->regiao_id)->select('id')->get();
+            $parametro = $request->input('parametro');
             
             if (Auth::user()->regiao_id == 1) {
-                $producoes = DB::table('producao as p')
+                $query = DB::table('producao as p')
                     ->join('producao_tipo as pt', 'pt.id','=','p.tipo_id')
-                    ->join('producao_status as ps', 'ps.id','=','p.status_id')
-                    ->orderby('p.numero', 'desc')
+                    ->join('producao_status as ps', 'ps.id','=','p.status_id');
+                
+                if (!empty($parametro)) {
+                    $query->where(function($q) use ($parametro) {
+                        $q->where('p.assunto', 'LIKE', '%' . $parametro . '%')
+                          ->orWhere('p.conteudo', 'LIKE', '%' . $parametro . '%');
+                    });
+                }
+                
+                $producoes = $query->orderby('p.numero', 'desc')
                     ->select('p.id as idRel', 'p.*', 'pt.descricao', 'ps.nomestatus')
+                    ->limit(150)
                     ->get();
             } else {
-                $producoes = DB::table('producao as p')
+                $query = DB::table('producao as p')
                     ->join('producao_tipo as pt', 'pt.id','=','p.tipo_id')
                     ->join('producao_status as ps', 'ps.id','=','p.status_id')
-                    ->WhereIn('p.unidade_id', $regiao)
-                    ->orderby('p.numero', 'desc')
+                    ->WhereIn('p.unidade_id', $regiao);
+                
+                if (!empty($parametro)) {
+                    $query->where(function($q) use ($parametro) {
+                        $q->where('p.assunto', 'LIKE', '%' . $parametro . '%')
+                          ->orWhere('p.conteudo', 'LIKE', '%' . $parametro . '%');
+                    });
+                }
+                
+                $producoes = $query->orderby('p.numero', 'desc')
                     ->select('p.id as idRel', 'p.*', 'pt.descricao', 'ps.nomestatus')
+                    ->limit(150)
                     ->get();
             }
 

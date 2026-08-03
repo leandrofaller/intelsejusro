@@ -31,7 +31,7 @@
             </div>
             <div class="col-md-6">
                     <a href="{!! route('producao.novo') !!}" class="btn btn-info" ><i class="fa fa-user-secret"></i> NOVO RELATÓRIO</a>
-                    <a href="{!! route('producao.exportarZip') !!}" class="btn btn-success" ><i class="fa fa-download"></i> DOWNLOAD PDFs (ZIP)</a>
+                    <a href="{!! route('producao.exportarZip', ['parametro' => $parametro]) !!}" class="btn btn-success" ><i class="fa fa-download"></i> DOWNLOAD PDFs (ZIP)</a>
             </div>
 
         </div>
