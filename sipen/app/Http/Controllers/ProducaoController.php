@@ -356,60 +356,17 @@ public function visualizar($id, Request $request)
             ->Where('p.id', $id)
             ->first();
 
-//        $conteudo_html =
-//            '<table width="100%" border="0" cellspacing="0" cellpadding="3">' .
-//            '<tr>' .
-//            '<td style="text-align:center; width:15%;">' .
-//            '<img src="../public/logo_estado.png" width="70px" height="45px"></td>' .
-//            '<td colspan="10" style="text-align:center; font-size:12px; padding: 0px, 0px,0px,0px; width:70%;">' .
-//            '<strong> GOVERNO DO ESTADO DE RONDÔNIA </strong> <br>' .
-//            '<strong> SECRETARIA DE ESTADO DE JUSTIÇA </strong> <br>' .
-//            '<strong> <span style="font-size:10px"> ' . $producao->unidade_id . ' </strong> </span> <br> ' .
-//            '<strong> <span style="font-size:10px"> DIREÇÃO ADMINISTRATIVA </strong> </span> ' .
-//            '</td>' .
-//            '<td style="text-align:center; width:15%;">' .
-//            '<img src="../public/sejus-ro.png" width="40px" height="60px"> </td>' .
-//            '</tr>' .
-//            '</table>';
+        if (!$producao) {
+            Flash::error("Relatório não encontrado.");
+            return redirect()->back();
+        }
 
-        $conteudo_html =
-            '<br>' .
-            '<br>' .
-            '<br>' .
-            '<br>' .
-            '<br>' .
-            '<h1 style="text-align: center;"> NUCLEO DE ANÁLISE </h1>'.
-            '<br>'.
-            '<br>'.
-            '<br>'.
-            '<br>'.
-            '<br>' ;
+        $html_completo = $this->montarHtmlRelatorio($producao);
+        $html_tratado = $this->tratarImagensHtml($html_completo);
 
         $numeroRelatorio = $producao->numero.'-'.$producao->ano ;
-        $conteudo_html .=
-            '<br><br><br><p align="left">Número: <strong>'.$numeroRelatorio.'</strong> </p>'
-        ;
-
-
-        $conteudo_html .=
-            $this->tratarImagensHtml($producao->conteudo)        ;
-
-
-        $conteudo_html .=
-            '<br>'.
-            '<b style="text-align: left;"> Chave: </b>'.
-            '<b style="text-align: left;"> '.$producao->chave.' </b>'
-        ;
-
-
-        $conteudo_html .=
-            '<br><br><p align="right" > Porto Velho '. \Jenssegers\Date\Date::now()->format('j F Y') .'</p>'
-        ;
-
-
-
-     //   Logger::Success('Certidão  Carcerária ','Preso : '.$apenado->nomeapenado.'  Data Emissão: ' .date('d-m-y'). ' Servidor: ' .Auth::user()->nome);
-        return $this->relatorio-> gerar_pdf_retrato('Relatorio_'.$numeroRelatorio.'', $conteudo_html, '' );
+        
+        return $this->relatorio->gerar_pdf_relatorio_stream('Relatorio_'.$numeroRelatorio, $html_tratado, 'R');
     }
 
     public function exportarZip(Request $request)
@@ -442,17 +399,11 @@ public function visualizar($id, Request $request)
                 foreach ($producoes as $producao) {
                     $numeroRelatorio = $producao->numero.'-'.$producao->ano;
                     
-                    $conteudo_html =
-                        '<br><br><br><br><br>' .
-                        '<h1 style="text-align: center;"> NUCLEO DE ANÁLISE </h1>'.
-                        '<br><br><br><br><br>' .
-                        '<br><br><br><p align="left">Número: <strong>'.$numeroRelatorio.'</strong> </p>' .
-                        $this->tratarImagensHtml($producao->conteudo) .
-                        '<br><b style="text-align: left;"> Chave: </b><b style="text-align: left;"> '.$producao->chave.' </b>' .
-                        '<br><br><p align="right" > Porto Velho '. \Jenssegers\Date\Date::now()->format('j F Y') .'</p>';
-
+                    $html_completo = $this->montarHtmlRelatorio($producao);
+                    $html_tratado = $this->tratarImagensHtml($html_completo);
+                    
                     $nomePdf = 'Relatorio_' . str_replace('/', '_', $numeroRelatorio) . '.pdf';
-                    $pdfString = $this->relatorio->gerar_pdf_string('Relatorio_'.$numeroRelatorio, $conteudo_html, 'R');
+                    $pdfString = $this->relatorio->gerar_pdf_relatorio_string('Relatorio_'.$numeroRelatorio, $html_tratado, 'R');
                     $zip->addFromString($nomePdf, $pdfString);
                 }
                 $zip->close();
@@ -468,6 +419,122 @@ public function visualizar($id, Request $request)
             Flash::error('Erro ao exportar relatórios para ZIP: ' . $e->getMessage());
             return redirect()->back();
         }
+    }
+
+    /**
+     * Monta o HTML do relatório no padrão visual oficial (RELINT) para o TCPDF.
+     */
+    private function montarHtmlRelatorio($producao)
+    {
+        $numeroRelatorio = $producao->numero.'-'.$producao->ano;
+        $chavecode = base64_encode($producao->chave);
+        $dataFormatted = $producao->datarelatorio ? dataFormat($producao->datarelatorio) : '**********';
+        $seguranca = $producao->seguranca ? $producao->seguranca : 'RESERVADO';
+
+        $html = '
+        <div style="background-color: #000000; color: #ffffff; text-align: center; font-weight: bold; font-size: 10px; line-height: 16px;">
+            ' . e($seguranca) . '
+        </div>
+        <br><br>
+        
+        <table width="100%" border="0" cellpadding="0" cellspacing="0">
+            <tr>
+                <td width="20%" align="left" valign="middle">
+                    <img src="public/logo_estado.png" width="55" height="35">
+                </td>
+                <td width="60%" align="center" valign="middle" style="font-size: 9px; line-height: 12px;">
+                    <strong>GOVERNO DO ESTADO DE RONDÔNIA</strong><br>
+                    <strong>SECRETARIA DE ESTADO DA JUSTIÇA</strong><br>
+                    <strong>GERÊNCIA DE INTELIGÊNCIA PENITENCIÁRIA</strong><br>
+                    <span style="font-size: 8px;">"CHAVE DE AUTENTICAÇÃO: ' . e($producao->chave) . ' "</span>
+                </td>
+                <td width="20%" align="right" valign="middle">
+                    <img src="public/sejus-ro.png" width="30" height="35">
+                </td>
+            </tr>
+        </table>
+        <br>
+        <hr style="color: #000000; height: 1px;">
+        <br>
+
+        <table width="100%" cellpadding="5" cellspacing="0" style="border: 1px solid #000000;">
+            <tr style="background-color: #1c6ca2; color: #ffffff; font-weight: bold; font-size: 10px;">
+                <td width="40%" style="border-right: 1px solid #000000;">' . e($producao->descricao) . '</td>
+                <td width="30%" align="center" style="border-right: 1px solid #000000;">' . e($producao->numero) . '</td>
+                <td width="30%" align="center">' . e($producao->origem ? $producao->origem : '**********') . '</td>
+            </tr>
+        </table>
+        
+        <table width="100%" cellpadding="4" cellspacing="0" style="border-left: 1px solid #000000; border-right: 1px solid #000000; border-bottom: 1px solid #000000;">
+            <tr style="background-color: #1a1a1a; color: #ffffff; font-size: 9px;">
+                <td width="30%" style="border-bottom: 1px solid #333333; border-right: 1px solid #333333;"><strong>DATA:</strong></td>
+                <td width="70%" style="border-bottom: 1px solid #333333;">' . e($dataFormatted) . '</td>
+            </tr>
+            <tr style="background-color: #1a1a1a; color: #ffffff; font-size: 9px;">
+                <td style="border-bottom: 1px solid #333333; border-right: 1px solid #333333;"><strong>ASSUNTO:</strong></td>
+                <td style="border-bottom: 1px solid #333333;">' . e($producao->assunto ? $producao->assunto : '**********') . '</td>
+            </tr>
+            <tr style="background-color: #1a1a1a; color: #ffffff; font-size: 9px;">
+                <td style="border-bottom: 1px solid #333333; border-right: 1px solid #333333;"><strong>ORIGEM:</strong></td>
+                <td style="border-bottom: 1px solid #333333;">' . e($producao->origem ? $producao->origem : '**********') . '</td>
+            </tr>
+            <tr style="background-color: #1a1a1a; color: #ffffff; font-size: 9px;">
+                <td style="border-bottom: 1px solid #333333; border-right: 1px solid #333333;"><strong>DIFUSÃO:</strong></td>
+                <td style="border-bottom: 1px solid #333333;">' . e($producao->difusao ? $producao->difusao : '**********') . '</td>
+            </tr>
+            <tr style="background-color: #1a1a1a; color: #ffffff; font-size: 9px;">
+                <td style="border-bottom: 1px solid #333333; border-right: 1px solid #333333;"><strong>DIFUSÃO ANTERIOR:</strong></td>
+                <td style="border-bottom: 1px solid #333333;">' . e($producao->difusaoanterior ? $producao->difusaoanterior : '**********') . '</td>
+            </tr>
+            <tr style="background-color: #1a1a1a; color: #ffffff; font-size: 9px;">
+                <td style="border-bottom: 1px solid #333333; border-right: 1px solid #333333;"><strong>REFERÊNCIA:</strong></td>
+                <td style="border-bottom: 1px solid #333333;">' . e($producao->referencia ? $producao->referencia : '**********') . '</td>
+            </tr>
+            <tr style="background-color: #1a1a1a; color: #ffffff; font-size: 9px;">
+                <td style="border-right: 1px solid #333333;"><strong>ANEXO:</strong></td>
+                <td>' . e($producao->anexo ? $producao->anexo : '**********') . '</td>
+            </tr>
+        </table>
+
+        <br><br>
+        <div style="text-align: center; font-weight: bold; font-size: 11px;">
+            RESPOSTA AO PEDIDO DE INTELIGÊNCIA Nº ' . e($producao->numero) . '
+        </div>
+        <br>
+
+        <div style="font-size: 10px; text-align: justify; line-height: 14px;">
+            ' . $producao->conteudo . '
+        </div>
+        <br><br>
+
+        <table width="100%" cellpadding="6" cellspacing="0" style="border: 1px solid #000000;">
+            <tr>
+                <td width="15%" align="center" valign="middle" style="border-right: 1px solid #000000;">
+                    <img src="public/logogeii.jpeg" width="45">
+                </td>
+                <td width="70%" align="center" valign="middle" style="border-right: 1px solid #000000;">
+                    <span style="font-weight: bold; font-size: 10px;">CHAVE DE AUTENTICAÇÃO</span><br>
+                    <span style="font-weight: bold; font-size: 11px;">' . e($producao->chave) . '</span><br><br>
+                    <div style="background-color: #000000; color: #ffffff; font-weight: bold; font-size: 10px; width: 100px; padding: 2px;">
+                        ' . e($seguranca) . '
+                    </div>
+                </td>
+                <td width="15%" align="center" valign="middle">
+                    <tcpdf method="write2DBarcode" params="\'http://intelsejusro.com/sipen/code/' . $chavecode . '\', \'QRCODE,H\', \'\', \'\', 25, 25, \'\', \'N\', true" />
+                </td>
+            </tr>
+        </table>
+
+        <br>
+        <table width="100%" cellpadding="4" cellspacing="0" style="border: 1px solid #000000; background-color: #ffffff;">
+            <tr>
+                <td style="font-size: 7px; color: #777777; text-align: justify; line-height: 10px;">
+                    "O sigilo deste documento é protegido, nos termos da Lei Nº 12.527/2011. A difusão não autorizada deste documento caracteriza crime de violação de sigilo funcional, capitulado no art. 325 do Código Penal Brasileiro. Pena: Reclusão de 2 (dois) a 6 (seis) anos e multa."
+                </td>
+            </tr>
+        </table>';
+
+        return $html;
     }
 
     /**

@@ -186,7 +186,7 @@ class Relatorio
                 </style>';
     }
 
-    public function gerar_pdf_string($titulo, $conteudo, $orientacao_pagina = 'R') {
+    public function gerar_pdf_relatorio_string($titulo, $conteudo, $orientacao_pagina = 'R') {
         if (!defined('K_PATH_IMAGES')) {
             define('K_PATH_IMAGES', public_path());
         }
@@ -195,23 +195,50 @@ class Relatorio
         $obj_tcpdf->SetTitle($titulo);
         $obj_tcpdf->SetSubject($titulo);
 
-        $obj_tcpdf->SetHeaderData('/sejus-ro.jpg', 10,
-            'GOVERNO DO ESTADO DE RONDÔNIA',
-            'SECRETARIA DE ESTADO DE JUSTIÇA');
+        // Desativa cabeçalho e rodapé padrão do TCPDF para usar o HTML customizado
+        $obj_tcpdf->setPrintHeader(false);
+        $obj_tcpdf->setPrintFooter(false);
         
-        $obj_tcpdf->SetMargins(5, 25, 5);
-        $obj_tcpdf->SetHeaderMargin(5);
-        $obj_tcpdf->SetRightMargin(5);
-        $obj_tcpdf->SetFooterMargin(10);
+        $obj_tcpdf->SetMargins(10, 10, 10);
+        $obj_tcpdf->SetRightMargin(10);
 
-        $obj_tcpdf->SetFont('helvetica', '', 11);
-        $obj_tcpdf->setHeaderFont(Array('helvetica', '', 14));
+        $obj_tcpdf->SetFont('helvetica', '', 10);
 
         $obj_tcpdf->AddPage($orientacao_pagina, 'A4');
         $obj_tcpdf->writeHTML($conteudo);
         $obj_tcpdf->lastPage();
 
         return $obj_tcpdf->output($titulo . '.pdf', 'S');
+    }
+
+    public function gerar_pdf_relatorio_stream($titulo, $conteudo, $orientacao_pagina = 'R') {
+        if (!defined('K_PATH_IMAGES')) {
+            define('K_PATH_IMAGES', public_path());
+        }
+        $obj_tcpdf = new \TCPDF();
+        $obj_tcpdf->SetAuthor('sejus');
+        $obj_tcpdf->SetTitle($titulo);
+        $obj_tcpdf->SetSubject($titulo);
+
+        // Desativa cabeçalho e rodapé padrão do TCPDF
+        $obj_tcpdf->setPrintHeader(false);
+        $obj_tcpdf->setPrintFooter(false);
+        
+        $obj_tcpdf->SetMargins(10, 10, 10);
+        $obj_tcpdf->SetRightMargin(10);
+
+        $obj_tcpdf->SetFont('helvetica', '', 10);
+
+        $obj_tcpdf->AddPage($orientacao_pagina, 'A4');
+        $obj_tcpdf->writeHTML($conteudo);
+        $obj_tcpdf->lastPage();
+
+        $obj_tcpdf->output($titulo . '.pdf', 'I');
+        
+        // Registra log
+        \App\Classes\Logger::success('Gerado PDF', 'Gerado PDF Oficial: ' . $titulo);
+        
+        exit;
     }
 
 }
