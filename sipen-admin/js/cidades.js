@@ -16,9 +16,12 @@ $(document).ready(function(){
             var estado = $('#estado :selected').text();
             $('#cidade').html('').append('<option value=""> Carregando...  </option>');
 
+        var pathname = window.location.pathname;
+        var adminIndex = pathname.indexOf('/admin/');
+        var baseUrl = adminIndex !== -1 ? pathname.substring(0, adminIndex + 7) : '/admin/';
+
         $.ajax({
-          //  url: 'http://localhost/sipe-admin/public/admin/cidades/'+idEstado,
-           url: 'http://sipe-admin.syspanda.com.br/admin/cidades/'+idEstado,
+            url: baseUrl + 'cidades/' + idEstado,
         }).success(function(data) {
             $('#cidade').empty();
             $.each(data, function (key, value) {
