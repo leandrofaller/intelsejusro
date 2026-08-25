@@ -22,6 +22,13 @@
 	<div class="navbar-buttons navbar-header pull-right  collapse navbar-collapse" role="navigation">
 		<ul class="nav ace-nav">
 
+			<!-- Botão Toggle Modo Escuro -->
+			<li class="grey">
+				<a href="#" id="toggle-dark-mode" title="Alternar Modo Claro/Escuro" style="background-color: transparent !important; color: white !important;">
+					<i class="ace-icon fa fa-moon-o" id="dark-mode-icon" style="font-size: 16px;"></i>
+				</a>
+			</li>
+
 			<li class="light-blue dropdown-modal user-min">
 				<a data-toggle="dropdown" href="#" class="dropdown-toggle" aria-expanded="false">
 					<img class="nav-user-photo" src="{{asset('images/avatars/avatar2.png')}}" alt="">

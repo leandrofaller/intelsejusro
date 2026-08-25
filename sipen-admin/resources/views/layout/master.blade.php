@@ -36,6 +36,19 @@
     {{ HTML::script('js/respond.min.js') }}
     <![endif]-->
     @yield('styles')
+
+    <!-- Custom Dark Mode CSS -->
+    {{ HTML::style('css/dark-mode.css') }}
+
+    <!-- Anti-flicker script -->
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme');
+            if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark-mode');
+            }
+        })();
+    </script>
 </head>
 
 <body class="no-skin">
@@ -93,6 +106,36 @@
     <!-- ace scripts -->
 {{ HTML::script('js/ace-elements.min.js') }}
 {{ HTML::script('js/ace.min.js') }}
+
+<!-- Dark Mode Toggle Script -->
+<script type="text/javascript">
+    $(document).ready(function() {
+        const toggleBtn = $('#toggle-dark-mode');
+        const icon = $('#dark-mode-icon');
+        
+        function syncIcon() {
+            if ($('html').hasClass('dark-mode')) {
+                icon.removeClass('fa-moon-o').addClass('fa-sun-o');
+            } else {
+                icon.removeClass('fa-sun-o').addClass('fa-moon-o');
+            }
+        }
+        
+        syncIcon();
+        
+        toggleBtn.on('click', function(e) {
+            e.preventDefault();
+            $('html').toggleClass('dark-mode');
+            
+            if ($('html').hasClass('dark-mode')) {
+                localStorage.setItem('theme', 'dark');
+            } else {
+                localStorage.setItem('theme', 'light');
+            }
+            syncIcon();
+        });
+    });
+</script>
 
 @yield('scripts')
 

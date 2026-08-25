@@ -66,6 +66,13 @@
 
 
 
+			<!-- Botão Toggle Modo Escuro -->
+			<li class="grey">
+				<a href="#" id="toggle-dark-mode" title="Alternar Modo Claro/Escuro" style="background-color: transparent !important; color: white !important;">
+					<i class="ace-icon fa fa-moon-o" id="dark-mode-icon" style="font-size: 16px;"></i>
+				</a>
+			</li>
+
 			<!-- #section:basics/navbar.user_menu -->
 			<li class="light-blue">
 				<a data-toggle="dropdown" href="#" class="dropdown-toggle">
