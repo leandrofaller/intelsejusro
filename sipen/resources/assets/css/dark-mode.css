@@ -16,7 +16,8 @@ html.dark-mode .table,
 html.dark-mode .form-control,
 html.dark-mode input,
 html.dark-mode select,
-html.dark-mode textarea {
+html.dark-mode textarea,
+html.dark-mode .infobox {
     transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
@@ -105,22 +106,6 @@ html.dark-mode .sidebar .nav-list > li.active:hover > a {
     font-weight: bold !important;
 }
 
-html.dark-mode .sidebar .nav-list > li .submenu {
-    background-color: #0b0f19 !important;
-    border-top: 1px solid #243049 !important;
-    border-bottom: 1px solid #243049 !important;
-}
-
-html.dark-mode .sidebar .nav-list > li .submenu > li > a {
-    color: #94a3b8 !important;
-}
-
-html.dark-mode .sidebar .nav-list > li .submenu > li:hover > a,
-html.dark-mode .sidebar .nav-list > li .submenu > li.active > a {
-    color: #38bdf8 !important;
-    background-color: transparent !important;
-}
-
 html.dark-mode .sidebar-toggle {
     background-color: #151b2c !important;
     border-color: #243049 !important;
@@ -129,6 +114,29 @@ html.dark-mode .sidebar-toggle {
 html.dark-mode .sidebar-toggle > .ace-icon {
     border-color: #243049 !important;
     color: #94a3b8 !important;
+}
+
+/* Sobrescrevendo seletores específicos de skin para o menu lateral (Submenus) */
+html.dark-mode .no-skin .sidebar .nav-list > li .submenu,
+html.dark-mode .sidebar .nav-list > li .submenu {
+    background-color: #151b2c !important;
+    border-color: #243049 !important;
+    border-top: 1px solid #243049 !important;
+    border-bottom: 1px solid #243049 !important;
+}
+
+html.dark-mode .no-skin .sidebar .nav-list > li .submenu > li > a,
+html.dark-mode .sidebar .nav-list > li .submenu > li > a {
+    color: #94a3b8 !important;
+    background-color: transparent !important;
+}
+
+html.dark-mode .no-skin .sidebar .nav-list > li .submenu > li:hover > a,
+html.dark-mode .no-skin .sidebar .nav-list > li .submenu > li.active > a,
+html.dark-mode .sidebar .nav-list > li .submenu > li:hover > a,
+html.dark-mode .sidebar .nav-list > li .submenu > li.active > a {
+    color: #38bdf8 !important;
+    background-color: #1e293b !important;
 }
 
 /* Breadcrumbs */
@@ -173,8 +181,9 @@ html.dark-mode .close:hover {
     opacity: 1 !important;
 }
 
-/* Tabelas */
-html.dark-mode .table {
+/* Tabelas e DataTables */
+html.dark-mode .table,
+html.dark-mode .table > tbody > tr {
     background-color: #151b2c !important;
     color: #edf2f7 !important;
 }
@@ -198,7 +207,10 @@ html.dark-mode .table-hover > tbody > tr:hover {
 }
 
 html.dark-mode thead,
-html.dark-mode .table > thead > tr > th {
+html.dark-mode .table > thead > tr > th,
+html.dark-mode .table > thead > tr > th.sorting,
+html.dark-mode .table > thead > tr > th.sorting_asc,
+html.dark-mode .table > thead > tr > th.sorting_desc {
     background-color: #1e293b !important;
     color: #38bdf8 !important;
     border-bottom-color: #243049 !important;
@@ -264,6 +276,25 @@ html.dark-mode .widget-main {
     background-color: #151b2c !important;
     color: #edf2f7 !important;
     border-color: #243049 !important;
+}
+
+/* Infoboxes / Cards de Facção no Dashboard */
+html.dark-mode .infobox {
+    background-color: #1e293b !important;
+    border: 1px solid #243049 !important;
+    color: #edf2f7 !important;
+}
+
+html.dark-mode .infobox .infobox-data {
+    color: #edf2f7 !important;
+}
+
+html.dark-mode .infobox .infobox-data > .infobox-data-number {
+    color: #edf2f7 !important;
+}
+
+html.dark-mode .infobox .infobox-content {
+    color: #94a3b8 !important;
 }
 
 /* Abas (Tabs) */
