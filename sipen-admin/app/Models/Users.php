@@ -12,7 +12,8 @@ class Users extends Authenticatable
     protected $table = 'users';
     protected $fillable = ['nome','cpf','matricula','rg','email','password','orgao_expedidor',
         'sexo','estado_civil_id','dt_nascimento','nome_mae','nome_pai','rua','numero','complemento',
-        'bairro','cidade_id','cep','fone_fixo','celular','foto','active', 'unidade_id', 'perfil' , 'anexodocumento'];
+        'bairro','cidade_id','cep','fone_fixo','celular','foto','active', 'unidade_id', 'perfil' , 'anexodocumento',
+        'acesso_faccionados', 'acesso_apenados', 'acesso_unidades', 'acesso_relatorios', 'acesso_producao', 'acesso_galeria'];
     protected $guarded = array('password');
     protected $hidden = array('password', 'remember_token');
 

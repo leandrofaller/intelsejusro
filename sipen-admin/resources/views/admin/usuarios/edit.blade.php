@@ -213,6 +213,56 @@
             </div>
         </div>
 
+        <div class="panel panel-default">
+            <div class="panel-heading">Permissões de Acesso às Seções</div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="checkbox">
+                            <label>
+                                {{ Form::checkbox('acesso_faccionados', 1, null) }} Faccionados
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="checkbox">
+                            <label>
+                                {{ Form::checkbox('acesso_apenados', 1, null) }} Apenados
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="checkbox">
+                            <label>
+                                {{ Form::checkbox('acesso_unidades', 1, null) }} Unidades
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="checkbox">
+                            <label>
+                                {{ Form::checkbox('acesso_relatorios', 1, null) }} Relatórios
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="checkbox">
+                            <label>
+                                {{ Form::checkbox('acesso_producao', 1, null) }} Produção
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="checkbox">
+                            <label>
+                                {{ Form::checkbox('acesso_galeria', 1, null) }} Galeria de Imagens
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
         <div class="panel panel-default">
             <div class="panel-heading"></div>

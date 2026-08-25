@@ -7,6 +7,15 @@
                 <b class="arrow"></b>
             </li>
         @foreach(Session::get('menus') as $menu)
+            <?php
+            $titulo = trim(strtoupper($menu->title));
+            if ($titulo == 'FACCIONADOS' && isset(Auth::user()->acesso_faccionados) && !Auth::user()->acesso_faccionados) continue;
+            if ($titulo == 'APENADOS' && isset(Auth::user()->acesso_apenados) && !Auth::user()->acesso_apenados) continue;
+            if ($titulo == 'UNIDADES' && isset(Auth::user()->acesso_unidades) && !Auth::user()->acesso_unidades) continue;
+            if ($titulo == 'RELATÓRIOS' && isset(Auth::user()->acesso_relatorios) && !Auth::user()->acesso_relatorios) continue;
+            if ($titulo == 'PRODUÇÃO' && isset(Auth::user()->acesso_producao) && !Auth::user()->acesso_producao) continue;
+            if ($titulo == 'GALERIA IMAGENS' && isset(Auth::user()->acesso_galeria) && !Auth::user()->acesso_galeria) continue;
+            ?>
             <li class="open">
                 <a href="#" class="dropdown-toggle">
                     <i class="menu-icon fa fa-{{$menu->icon}}"></i>

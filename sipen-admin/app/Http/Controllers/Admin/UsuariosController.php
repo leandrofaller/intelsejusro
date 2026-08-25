@@ -83,6 +83,12 @@ class UsuariosController extends Controller
             $dt_nascimento = date("Y-m-d", strtotime(str_replace('/', '-', $request->input('dt_nascimento'))));
 
             $this->usuario->fill($request->all());
+            $this->usuario->acesso_faccionados = $request->has('acesso_faccionados') ? 1 : 0;
+            $this->usuario->acesso_apenados = $request->has('acesso_apenados') ? 1 : 0;
+            $this->usuario->acesso_unidades = $request->has('acesso_unidades') ? 1 : 0;
+            $this->usuario->acesso_relatorios = $request->has('acesso_relatorios') ? 1 : 0;
+            $this->usuario->acesso_producao = $request->has('acesso_producao') ? 1 : 0;
+            $this->usuario->acesso_galeria = $request->has('acesso_galeria') ? 1 : 0;
             $this->usuario->cpf = $cpf;
             $this->usuario->dt_nascimento = $dt_nascimento;
             $this->usuario->password = bcrypt(123456);
@@ -150,6 +156,12 @@ class UsuariosController extends Controller
 
             $usuario = $this->usuario->find($id);
             $usuario->fill($request->all());
+            $usuario->acesso_faccionados = $request->has('acesso_faccionados') ? 1 : 0;
+            $usuario->acesso_apenados = $request->has('acesso_apenados') ? 1 : 0;
+            $usuario->acesso_unidades = $request->has('acesso_unidades') ? 1 : 0;
+            $usuario->acesso_relatorios = $request->has('acesso_relatorios') ? 1 : 0;
+            $usuario->acesso_producao = $request->has('acesso_producao') ? 1 : 0;
+            $usuario->acesso_galeria = $request->has('acesso_galeria') ? 1 : 0;
             $usuario->cpf = $cpf;
             $usuario->dt_nascimento = $dt_nascimento;
             $usuario->save();

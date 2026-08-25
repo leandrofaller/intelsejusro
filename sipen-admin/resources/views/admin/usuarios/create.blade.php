@@ -203,6 +203,57 @@
         </div>
     </div>
 </div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Permissões de Acesso às Seções</div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="checkbox">
+                    <label>
+                        {{ Form::checkbox('acesso_faccionados', 1, true) }} Faccionados
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="checkbox">
+                    <label>
+                        {{ Form::checkbox('acesso_apenados', 1, true) }} Apenados
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="checkbox">
+                    <label>
+                        {{ Form::checkbox('acesso_unidades', 1, true) }} Unidades
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="checkbox">
+                    <label>
+                        {{ Form::checkbox('acesso_relatorios', 1, true) }} Relatórios
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="checkbox">
+                    <label>
+                        {{ Form::checkbox('acesso_producao', 1, true) }} Produção
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="checkbox">
+                    <label>
+                        {{ Form::checkbox('acesso_galeria', 1, true) }} Galeria de Imagens
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="alert alert-info"> <h2> A senha Padrão é : 123456</h2> </div>
     <div class="panel panel-default">
         <div class="panel-heading"></div>
